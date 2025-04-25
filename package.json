@@ -12,8 +12,10 @@
   "dependencies": {
     "@types/body-parser": "^1.19.5",
     "@types/express": "^5.0.1",
+    "@types/express-fileupload": "^1.5.1",
     "body-parser": "^2.2.0",
     "express": "^5.1.0",
+    "express-fileupload": "^1.5.1",
     "typescript": "^5.8.3"
   },
   "devDependencies": {

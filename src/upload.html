@@ -1,0 +1,20 @@
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload files</title>
+</head>
+
+<body>
+  <main>
+    <h1>Upload files</h1>
+    <form ref="uploadForm" id="uploadForm" action="/upload" method="post" encType="multipart/form-data">
+      <input type="text" name="dir" placeholder="Directory">
+      <input type="file" name="file">
+      <button type="submit">Upload</button>
+    </form>
+  </main>
+</body>
+
+</html>
