@@ -20,8 +20,17 @@ async function readDir(dir: string) {
       continue;
     }
 
-    let type: FileType;
-    lstatSync(dir + file).isDirectory() ? type = "directory" : type = "file";
+    let type: FileType = "file";
+    if (lstatSync(dir + file).isDirectory()) {
+      type = "directory";
+      const dirContents = await readDir(dir + file + "/");
+      for (const dirFile of dirContents) {
+        output.push({
+          name: file + "/" + dirFile.name,
+          type: dirFile.type,
+        });
+      }
+    }
 
     output.push({
       name: file,
