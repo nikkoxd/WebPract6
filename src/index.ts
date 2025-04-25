@@ -79,6 +79,7 @@ app.post("/upload", (req, res) => {
   }
 
   writeFileSync("./uploads/" + dir + "/" + file.name, file.data);
+  res.send("File uploaded");
 });
 
 app.get("/download", (req, res) => {
@@ -86,13 +87,16 @@ app.get("/download", (req, res) => {
 
   if (!path) {
     res.status(404).send("File not found");
+    return;
   }
   if (lstatSync("./uploads/" + path).isDirectory()) {
-    res.status(404).send("Directory not found");
+    res.status(400).send("Can only download files");
+    return;
   }
 
   if ((path?.startsWith(".") && !path?.startsWith("./")) || path?.includes("/.")) {
     res.status(503).send("Can't download hidden files");
+    return;
   }
 
   path = "./uploads/" + path;
@@ -107,15 +111,44 @@ app.get("/", (req, res) => {
   if (!dir) {
     dir = "";
   } else {
-    dir += "/"
+    if (!existsSync(baseFolder + dir)) {
+      res.status(404).send("Directory not found");
+      return;
+    }
+
+    if (!lstatSync(baseFolder + dir).isDirectory()) {
+      res.status(400).send("Can only view directories");
+      return;
+    }
+    dir += "/";
+
     if (dir.startsWith("/")) {
       dir = dir.substring(1);
     } else if (dir.startsWith("./")) {
       dir = dir.substring(2);
     } else if (dir.startsWith(".")) {
-      res.status(404).send("Directory not found");
+      res.status(503).send("Can't view hidden directories");
+      return;
+    }
+
+    if (dir.match(/\/\.[A-z]/)) {
+      res.status(503).send("Can't view hidden directories");
     }
   }
+
+  // if (!dir) {
+  //   dir = "";
+  // } else {
+  //   dir += "/"
+  //   if (dir.startsWith("/")) {
+  //     dir = dir.substring(1);
+  //   } else if (dir.startsWith("./")) {
+  //     dir = dir.substring(2);
+  //   } else if (dir.startsWith(".") && !dir.startsWith("..")) {
+  //     res.status(503).send("Can't view hidden directories");
+  //     return;
+  //   }
+  // }
 
   readDir(baseFolder + dir).then((output) => {
     res.send(output);
