@@ -9,6 +9,7 @@ type FileType = "file" | "directory";
 interface File {
   type: FileType;
   name: string;
+  contents?: File[];
 }
 
 async function readDir(dir: string) {
@@ -21,25 +22,37 @@ async function readDir(dir: string) {
     }
 
     let type: FileType = "file";
+    let contents: File[] | undefined;
     if (lstatSync(dir + file).isDirectory()) {
       type = "directory";
       const dirContents = await readDir(dir + file + "/");
-      for (const dirFile of dirContents) {
-        output.push({
-          name: file + "/" + dirFile.name,
-          type: dirFile.type,
-        });
-      }
+      contents = dirContents;
     }
 
     output.push({
       name: file,
       type: type,
+      contents: contents,
     })
   }
 
   return output;
 }
+
+app.get("/download", (req, res) => {
+  let path = req.query.path?.toString();
+
+  if (!path) {
+    res.status(404).send("File not found");
+  } 
+  if (lstatSync("./uploads/" + path).isDirectory()) {
+    res.status(404).send("Directory not found");
+  }
+
+  path = "./uploads/" + path;
+
+  res.download(path);
+})
 
 app.get("/", (req, res) => {
   const baseFolder = "./uploads/";
@@ -53,6 +66,8 @@ app.get("/", (req, res) => {
       dir = dir.substring(1);
     } else if (dir.startsWith("./")) {
       dir = dir.substring(2);
+    } else if (dir.startsWith(".")) {
+      res.status(404).send("Directory not found");
     }
   }
 
