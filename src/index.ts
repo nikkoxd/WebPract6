@@ -133,22 +133,9 @@ app.get("/", (req, res) => {
 
     if (dir.match(/\/\.[A-z]/)) {
       res.status(503).send("Can't view hidden directories");
+      return;
     }
   }
-
-  // if (!dir) {
-  //   dir = "";
-  // } else {
-  //   dir += "/"
-  //   if (dir.startsWith("/")) {
-  //     dir = dir.substring(1);
-  //   } else if (dir.startsWith("./")) {
-  //     dir = dir.substring(2);
-  //   } else if (dir.startsWith(".") && !dir.startsWith("..")) {
-  //     res.status(503).send("Can't view hidden directories");
-  //     return;
-  //   }
-  // }
 
   readDir(baseFolder + dir).then((output) => {
     res.send(output);
